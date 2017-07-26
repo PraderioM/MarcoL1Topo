@@ -2,7 +2,7 @@ import ROOT as R
 R.gROOT.SetBatch(True)                        # go batch!
 
 
-histos = ['n_mu', 'n_mu6ab', 'n_pairs_mu6_0dr15', 'n_pairs_0dr15', 'n_pairs_mu6ab', 'n_cand_pairs', 'dr_min', 'dr_0dr15', 'dr_mu6', 'dr_mu6_0dr15', 'dr_any', 'Phi_mu6', 'Eta_mu6', 'pt_0dr15', 'pt_any']
+histos = ['n_mu', 'n_mu6ab', 'n_pairs_mu6_0dr15', 'n_pairs_0dr15', 'n_pairs_mu6ab', 'n_cand_pairs', 'dr_min', 'dr_0dr15', 'dr_mu6', 'dr_mu6_min', 'dr_mu6_0dr15', 'dr_any', 'Phi_mu6', 'Eta_mu6', 'pt_0dr15', 'pt_any']
 outcomes = ['pass_em_pass_hw', 'pass_em_fail_hw', 'fail_em_pass_hw', 'fail_em_fail_hw']
 histo_names = [name+'_'+outcome for outcome in outcomes for name in histos]
 
