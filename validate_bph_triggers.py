@@ -17,6 +17,7 @@ import string
 import sys
 from collections import defaultdict
 from pprint import pprint
+from math import pi, sqrt, cos, cosh
 
 cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../L1TopoValidation/L1TopoCheck/python/")))
 if cmd_subfolder not in sys.path:
@@ -89,28 +90,38 @@ def main():
 
     histos = {}
     histos2= {}
-    lvl1item_name  = 'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4'           #ASK DAVIDE FOR NAME
+    lvl1item_name  = 'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4'
     algorithm_name = '0DR15-MU4MU6'
 
     l = lvl1item_name
     num_binning   = (9 , -0.5, 8.5)
-    dr_binning    = (30 , -0.1 , 5.9)
-    binning_2im9 = (15 , 0.0 , 1.5)
+    dr_binning    = (30 , 0.0 , 6.0)
+    m_binning     = (15 , -500.0 , 14500.0)
     pt_binning    = (8, 3500.0 , 11500.0) 
     angle_binning = (28, -3.5, 3.5)
     for k in possible_outcomes: #initialize the histograms, they will still be empty after 
         histos[k] = {
-            'n_mu'                     : R.TH1F('n_mu'+'_'+k                     , l+'; N input l1mus'                   , *num_binning),
-            'n_mu6mu4'                 : R.TH1F('n_mu6mu4'+'_'+k                 , l+'; N mu6mu4 muons'                  , *num_binning),
-            'n_pairs_mu6mu4_2m9_0dr15' : R.TH1F('n_pairs_mu6mu4_2m9_0dr15'+'_'+k , l+'; N mu6mu4_2m9_0dr15 pairs'        , *num_binning),
-            'n_pairs_mu6mu4'           : R.TH1F('n_pairs_mu6mu4'+'_'+k           , l+'; N mu6mu4 pairs'                  , *num_binning),
-            'n_cand_pairs'             : R.TH1F('n_cand_pairs'+'_'+k             , l+'; N candidate pairs'               , *num_binning),
-            'dr_min_mu6mu4'            : R.TH1F('dr_min_mu6mu4'+'_'+k            , l+'; min #DeltaR best candidate pair' , *dr_binning),
-            'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'            , *dr_binning),
-            'dr_mu6mu4_2m9_0dr15'      : R.TH1F('dr_mu6mu4_2m9_0dr15'+'_'+k      , l+'; #DeltaR mu6mu4_2m9_0dr15'        , *binning_2im9),
-            'Phi_mu6mu4'               : R.TH1F('Phi_mu6mu4'+'_'+k               , l+'; Phi angle any mu6mu4 muon'       , *angle_binning),
-            'Eta_mu6mu4'               : R.TH1F('Eta_mu6mu4'+'_'+k               , l+'; Eta angle any mu6mu4 muon'       , *angle_binning),
-            'pt_any'                   : R.TH1F('pt_any'+'_'+k                   , l+'; #Pt any muon'                    , *pt_binning),
+            'n_mu'                     : R.TH1F('n_mu'+'_'+k                     , l+'; N input l1mus'                , *num_binning),
+            'n_mu4'                    : R.TH1F('n_mu4'+'_'+k                    , l+'; N mu4 muons'                  , *num_binning),
+            'n_pairs_mu6mu4_2m9_0dr15' : R.TH1F('n_pairs_mu6mu4_2m9_0dr15'+'_'+k , l+'; N mu6mu4_2m9_0dr15 pairs'     , *num_binning),
+            'n_pairs_mu6mu4_2m9'       : R.TH1F('n_pairs_mu6mu4_2m9'+'_'+k       , l+'; N mu6mu4_2m9 pairs'           , *num_binning),
+            'n_pairs_mu6mu4_0dr15'     : R.TH1F('n_pairs_mu6mu4_0dr15'+'_'+k     , l+'; N mu6mu4_0dr15 pairs'         , *num_binning),
+            'n_pairs_mu6mu4'           : R.TH1F('n_pairs_mu6mu4'+'_'+k           , l+'; N mu6mu4 pairs'               , *num_binning),
+            'n_pairs_any'              : R.TH1F('n_pairs_any'+'_'+k              , l+'; N any pair'                   , *num_binning),
+            'dr_min_mu6mu4'            : R.TH1F('dr_min_mu6mu4'+'_'+k            , l+'; min #DeltaR best mu6mu4 pair' , *dr_binning),
+            'dr_any'                   : R.TH1F('dr_any'+'_'+k                   , l+'; #DeltaR any pair'             , *dr_binning),
+            'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'         , *dr_binning),
+            'dr_mu6mu4_0dr15'          : R.TH1F('dr_mu6mu4_0dr15'+'_'+k          , l+'; #DeltaR mu6mu4_0dr15'         , *dr_binning),
+            'dr_mu6mu4_2m9'            : R.TH1F('dr_mu6mu4_2m9'+'_'+k            , l+'; #DeltaR mu6mu4_2m9'           , *dr_binning),
+            'dr_mu6mu4_2m9_0dr15'      : R.TH1F('dr_mu6mu4_2m9_0dr15'+'_'+k      , l+'; #DeltaR mu6mu4_2m9_0dr15'     , *dr_binning),            'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'         , *dr_binning),
+            'm_any'                    : R.TH1F('m_any'+'_'+k                    , l+'; #InvMass any pair'            , *m_binning),
+            'm_mu6mu4'                 : R.TH1F('m_mu6mu4'+'_'+k                 , l+'; #InvMass mu6mu4 pairs'        , *m_binning),
+            'm_mu6mu4_0dr15'           : R.TH1F('m_mu6mu4_0dr15'+'_'+k           , l+'; #InvMass mu6mu4_0dr15'        , *m_binning),
+            'm_mu6mu4_2m9'             : R.TH1F('m_mu6mu4_2m9'+'_'+k             , l+'; #InvMass mu6mu4_2m9'          , *m_binning),
+            'm_mu6mu4_2m9_0dr15'       : R.TH1F('m_mu6mu4_2m9_0dr15'+'_'+k       , l+'; #InvMass mu6mu4_2m9_0dr15'    , *m_binning),
+            'Phi_mu4'                  : R.TH1F('Phi_mu6mu4'+'_'+k               , l+'; Phi angle any mu4 muon'       , *angle_binning),
+            'Eta_mu4'                  : R.TH1F('Eta_mu6mu4'+'_'+k               , l+'; Eta angle any mu4 muon'       , *angle_binning),
+            'pt_any'                   : R.TH1F('pt_any'+'_'+k                   , l+'; #Pt any muon'                 , *pt_binning),
             }
         histos2[k] = R.TH2F('PhiEta_mu6mu4'+'_'+k   , l+'; Phi angle any mu6mu4; Eta angle any mu6mu4' , *2*angle_binning)
 
@@ -150,20 +161,24 @@ def main():
         # these are EnhancedMuonTOB objects
         muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.hdwMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
+#        muons = remove_repeated(muons)
+        muons = remove_equal_muons(muons)
 
-        list_mu4 = algo_MU4(muons) #mu4 list
-        list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_pairs = algo_2M9_0DR15(list_mu4) #2im9_0dr15 couplelist
-        list_2m9_0dr15_mu6mu4 = algo_MU6MU4_pairs(list_mu6mu4_2m9_0dr15_pairs)
+        list_mu4 = sorted(muons, key = lambda muon: muon.p4.Pt()) #all muons satisfy mu4
+        list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_2m9_pairs, list_mu6mu4_0dr15_pairs, list_mu6mu4_pairs = algo_2M9_0DR15(list_mu4, pass_hw = pass_hw) #2im9_0dr15 couplelist
+        list_pairs = make_all_pairs(muons)
 
-        pass_emul = len(list_mu6mu4_2m9_0dr15_pairs)   #returns true if mu6mu4, 2m9 and 0dr15
+        pass_emul = len(list_mu6mu4_2m9_0dr15_pairs)  #returns true if mu6mu4, 2m9 or 0dr15
+#        pass_emul = len(list_mu6mu4_2m9_pairs) or len(list_mu6mu4_0dr15_pairs)  #returns true if mu6mu4, 2m9 or 0dr15
 
         outcome = ('pass_em_pass_hw' if pass_hw and pass_emul else
                    'pass_em_fail_hw' if pass_emul else
                    'fail_em_pass_hw' if pass_hw else
                    'fail_em_fail_hw')
         valid_counters[outcome] += 1
-        fill_histos(histos[outcome], histos2[outcome], muons, list_mu4,
-                    list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_pairs) #fill histograms
+        fill_histos(histos[outcome], histos2[outcome], muons, list_mu4, list_mu6mu4_2m9_pairs,
+                     list_mu6mu4_0dr15_pairs, list_mu6mu4_2m9_0dr15_pairs,
+                     list_mu6mu4_pairs, list_pairs) #fill histograms
         
         if debug and pass_hw:
             print "passed, %d muons" % len(muons)
@@ -188,9 +203,11 @@ def main():
     total_pass_hw = f_p+p_p
     total_discordance = 100.*(f_p+p_f)/total_imputs
     pass_em_discordance = 100.*p_f/total_pass_em
+    fail_em_discordance = 100.*f_p/(f_p+f_f)
     pass_hw_discordance = 100.*f_p/total_pass_hw
     print('  total   error {:.2f}%'.format(total_discordance))
     print('  em pass error {:.2f}%'.format(pass_em_discordance))
+    print('  em fail error {:.2f}%'.format(fail_em_discordance))
     print('  hw pass error {:.2f}%'.format(pass_hw_discordance))
 
     c = R.TCanvas('c')
@@ -226,90 +243,117 @@ def main():
     c.SaveAs('PhiEta_mu6mu4.png')
     c.SaveAs('PhiEta_mu6mu4.root')
 
-def algo_MU6MU4_pairs(list_2m9_0dr15_pairs):
-    list_2m9_0dr15_mu6mu4 = []
-    for couple in list_2m9_0dr15_pairs:
-        if couple[0].p4.Pt()<8000 and couple[1].p4.Pt()<8000:
-            list_2m9_0dr15_mu6mu4.append(couple)
-
-    return list_2m9_0dr15_mu6mu4
 
 
-def algo_2M9_0DR15(list_mu4): #retuns ordered list with couples of mu6mu4 muons satisfying 2M9_0DR15
+def algo_2M9_0DR15(list_mu4, pass_hw): #retuns ordered list with couples of mu6mu4 muons satisfying 2M9_0DR15
     couples_any   = []
-    list_mu6 = [muon for muon in list_mu4 if muon[1]>5500]
+    list_mu6 = [muon for muon in list_mu4 if muon.p4.Pt()>5500]
     n_mu4 = len(list_mu4)
     n_mu6 = len(list_mu6)
     n_dif = n_mu4-n_mu6
-    for i in range(n_dif): #check all mu4 mu6 couples to see if 2M9_0DR15
-        for muon, pt in list_mu6:
-            dr = list_mu4[i].p4.DeltaR(muon.p4)
-            m = (list_mu4[i].p4+muon.p4).M()
-            couples_any.append((list_mu4[i][0], muon, dr, m))
+    for i in range(n_dif): #build all mu4 mu6 pairs
+        for muon in list_mu6:
+            pair = MuonPair(list_mu4[i], muon)
+            couples_any.append(pair)
 
-    for i in range(n_mu6-1): #check all mu6 mu6 couples to see if 2M9_0DR15
+    for i in range(n_mu6-1): #build all mu6 mu6 pairs
         for j in range(i+1,n_mu6):
-            dr = list_mu6[i].p4.DeltaR(list_mu6[j].p4)
-            m = (list_mu6[i].p4+list_mu6[j].p4).M()
-            couples_any.append((list_mu6[i][0], list_mu6[j][0], dr, m))
+            pair = MuonPair(list_mu6[i], list_mu6[j])
+            couples_any.append(pair)
 
+    couples_any.sort(key = lambda couple: couple.dr) #sort list
+    couples_0dr15 = [couple for couple in couples_any if couple.dr<=1.5] #take only 0dr15
+#    couples_0dr15 = [couple for couple in couples_any if (not couple.isPhi3 and couple.dr<1.505) or (couple.isPhi3 and (couple.dr<1.505 or (couple.dr>2.75 and couple.dr<3.2)))] #take only 0dr15, different algorithm for Phi>3
+    couples_2m9   = [couple for couple in couples_any if couple.m>=1999.67 and couple.m<=9000] #take only 2m9
+#    couples_2m9_0dr15 = [couple for couple in couples_2m9 if couple.dr<=1.5] #take only 2mu9_0dr15
+    couples_2m9_0dr15 = [couple for couple in couples_0dr15 if couple.m>=2000 and couple.m<=9000] #take only 2mu9_0dr15
+#    couples_2m9_0dr15 = couples_2m9
+    if pass_hw and not len(couples_2m9_0dr15):
+        for couple in couples_any:
+           #print some data to check
+            mu1 = couple.muon1.p4
+            mu2 = couple.muon2.p4
+            dr = couple.dr
+            m = couple.m
+            DPhi = mu1.DeltaPhi(mu2)
+            print("muon1: Pt = {0:.2f} Phi = {1:.2f} Eta = {2:.2f}".format(mu1.Pt(), mu1.Phi(), mu1.Eta()))
+            print("muon2: Pt = {0:.2f} Phi = {1:.2f} Eta = {2:.2f}".format(mu2.Pt(), mu2.Phi(), mu2.Eta()))
+            print("Dr  = {:.2f}   m = {:.2f}   DPhi = {:.2f}".format(dr, m, DPhi))
+#            DPhiBad = (couple[0].p4.Phi()-couple[1].p4.Phi())%(2*pi)
+#            print("DPhibad = {:.2f}\n\n".format(DPhiBad))
+        print("#events {:d}".format(len(couples_any)))
+        print("--------------")
 
-
-    couples_any.sort(key = lambda couple: couple[2]) #sort list
-    couples_2m9_0dr15 = [couple for couple in couples_any if couple[2]<1.505 and (couple[3]>1999 and couple[3]<9001)] #take only 2mu9_0dr15
-        return (couples_2m9_0dr15, couples_any, list_2m9_0dr15)
-
-    return (couples_2m9_0dr15, couples_any)
-
+    return (couples_2m9_0dr15, couples_2m9, couples_0dr15, couples_any)
 
 
 def algo_MU4(muons): #returns sorted list of muons satistfying MU4
-    mu6_list = []
-    mu4_list = []
+    mu4_list = []#
 
     for muon in muons:
         pt = muon.p4.Pt()
         #some error when doing >=4000 solved with >3500
-        if pt>3500:                               
-            mu4_list.append((muon,pt))
+        if pt>3500:                   
+            mu4_list.append(muon)
 
-    mu4_list.sort(key = lambda muon: muon[1])
+    mu4_list.sort(key = lambda muon: muon.p4.Pt())
     
     return mu4_list
 
     
-def fill_histos(histos, histos2, muons, list_mu4,
-                list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_pairs): #fills histograms
+def fill_histos(histos, histos2, muons, list_mu4, list_mu6mu4_2m9_pairs,
+                list_mu6mu4_0dr15_pairs, list_mu6mu4_2m9_0dr15_pairs,
+                list_mu6mu4_pairs, list_pairs): #fills histograms
     n_mu = len(muons)
     n_mu4= len(list_mu4)
+    n_pairs = len(list_pairs)
     n_mu6mu4_pairs = len(list_mu6mu4_pairs)
+    n_mu6mu4_2m9_pairs = len(list_mu6mu4_2m9_pairs)
+    n_mu6mu4_0dr15_pairs = len(list_mu6mu4_0dr15_pairs)
     n_mu6mu4_2m9_0dr15_pairs = len(list_mu6mu4_2m9_0dr15_pairs)
     histos['n_mu'                    ].Fill(n_mu)
-    histos['n_mu6mu4'                ].Fill(n_mu4)
+    histos['n_mu4'                   ].Fill(n_mu4)
     histos['n_pairs_mu6mu4_2m9_0dr15'].Fill(n_mu6mu4_2m9_0dr15_pairs)  #number of mu6mu4_2m9_0dr15 pairs
-    # same number obtained here than using the formula n*(n-1)/2
+    histos['n_pairs_mu6mu4_2m9'      ].Fill(n_mu6mu4_2m9_pairs)        #number of mu6mu4_2m9 pairs
+    histos['n_pairs_mu6mu4_0dr15'    ].Fill(n_mu6mu4_0dr15_pairs)      #number of mu6mu4_0dr15 pairs
     histos['n_pairs_mu6mu4'          ].Fill(n_mu6mu4_pairs)            #number of mu6mu4 pairs
-    histos['n_cand_pairs'            ].Fill(n_pairs)                   #number of candidate pairs
-
+    histos['n_pairs_any'             ].Fill(n_pairs)                   #number of pairs
+    
     
     if n_mu6mu4_2m9_0dr15_pairs:
-        for couple in list_mu6mu4_2m9_0dr15_pairs:
-            histos['dr_mu6mu4_2m9_0dr15'].Fill(couple[2])
+        for pair in list_mu6mu4_2m9_0dr15_pairs:
+            histos['dr_mu6mu4_2m9_0dr15'].Fill(pair.dr)
+            histos['m_mu6mu4_2m9_0dr15'].Fill(pair.m)
     
-    if n_mu6mu4_pairs: 
-        histos['dr_min_mu6mu4'].Fill(list_pairs[0][2])
-        for couple in list_mu6mu4_pairs:
-            histos['dr_mu6mu4'].Fill(couple[2])
+    if n_mu6mu4_2m9_pairs:
+        for pair in list_mu6mu4_2m9_pairs:
+            histos['dr_mu6mu4_2m9'].Fill(pair.dr)
+            histos['m_mu6mu4_2m9'].Fill(pair.m)
+    
+    if n_mu6mu4_0dr15_pairs:
+        for pair in list_mu6mu4_0dr15_pairs:
+            histos['dr_mu6mu4_0dr15'].Fill(pair.dr)
+            histos['m_mu6mu4_0dr15'].Fill(pair.m)
 
+    if n_mu6mu4_pairs: 
+        histos['dr_min_mu6mu4'].Fill(list_mu6mu4_pairs[0].dr) #lowest dr
+        for pair in list_mu6mu4_pairs:
+            histos['dr_mu6mu4'].Fill(pair.dr)
+            histos['m_mu6mu4'].Fill(pair.m)
+
+    if n_pairs: 
+        for pair in list_pairs:
+            histos['dr_any'].Fill(pair.dr)
+            histos['m_any'].Fill(pair.m)
    
     for muon in muons: #fill histogram of momentums
         histos['pt_any'].Fill(muon.p4.Pt())
   
-    for muon, pt in list_mu4: #fill histograms of angles
+    for muon in list_mu4: #fill histograms of angles
         Phi = muon.p4.Phi()
         Eta = muon.p4.Eta()
-        histos['Phi_mu6mu4'].Fill(Phi)
-        histos['Eta_mu6mu4'].Fill(Eta)
+        histos['Phi_mu4'].Fill(Phi)
+        histos['Eta_mu4'].Fill(Eta)
         histos2.Fill(Phi, Eta)
 
 
@@ -320,6 +364,64 @@ class Muon(object):
         #self.p4 = tlv.SetPtEtaPhiE(pt, eta, phi, energy)
         self.p4 = R.TLorentzVector() # four-momentum
         self.p4.SetPtEtaPhiM(pt, eta, phi, muon_mass)
+
+class MuonPair(object):
+    def __init__(self, muon1, muon2):
+        pi = 3.141592653
+        tau = 2*pi
+        self.muon1  = muon1
+        self.muon2  = muon2
+        self.dr     = muon1.p4.DeltaR(muon2.p4)
+#        DPhi = muon1.p4.DeltaPhi(muon2.p4)
+        Phi1 = muon1.p4.Phi()
+        Phi2 = muon2.p4.Phi()
+
+#        if Phi1>=3.09:
+#            Phi1=0
+#        Phi2 = muon2.p4.Phi()
+#        if Phi2>=3.09:
+#            Phi2=0
+
+#        if Phi1>3:
+#            Phi1+=0.1
+#        if Phi2>3:
+#            Phi2+=0.1
+        DPhi = (Phi1-Phi2)%tau 
+#        DPhi = min((Phi1-Phi2)%tau, (Phi1-Phi2+tau/2)%tau) 
+#        if DPhi>pi:
+#            DPhi=2*pi-DPhi
+        Dphi = muon1.p4.DeltaPhi(muon2.p4)
+        Eta1 = muon1.p4.Eta()
+        Eta2 = muon2.p4.Eta()
+        DEta = Eta1-Eta2
+        self.m = sqrt(2*muon1.p4.Pt()*muon2.p4.Pt()*(cosh(DEta)-cos(DPhi)))
+#        self.m      = (muon1.p4+muon2.p4).M()
+        self.isPhi3 = muon1.p4.Phi()>3 or muon2.p4.Phi()>3 #true if the Phi value of any of the muons is greater than 3.
+
+def remove_equal_muons(muons): #remove repeated muons of a list
+    ZERO = 1.e-2
+    i = 0
+    while i<(len(muons)-1):
+        j = i+1
+        while j<len(muons):
+            if (abs(muons[i].p4.Pt()-muons[j].p4.Pt())+abs(muons[i].p4.Eta()-muons[j].p4.Eta())+abs(muons[i].p4.Phi()-muons[j].p4.Phi()))<ZERO:
+                muons.pop(j)
+                j-=1
+            j+=1
+        i +=1
+
+    return muons
+
+def make_all_pairs(muons): #given a muon list returns all possible non repeated pairs of muons sorted by dr
+    list_pairs = []
+    n_mu = len(muons)
+    for i in range(n_mu-1):
+        for j in range(i+1, n_mu):
+            pair = MuonPair(muons[i],muons[j])
+            list_pairs.append(pair)
+
+    list_pairs.sort(key = lambda pair: pair.dr)
+    return list_pairs
 
 def algo_bit_names_and_numbers():
     "Bits stored in the TBits for each L1 algorithm"
