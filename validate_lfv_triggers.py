@@ -160,7 +160,7 @@ def main():
         # these are EnhancedMuonTOB objects
 #        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
 #                 if tob.bcn==0] # only pick the ones from bunch crossing number 0
-        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.hdwMuonTOB
+        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
 #        muons = remove_equal_muons(muons)
 
@@ -194,7 +194,7 @@ def main():
 #        if outcome == 'pass_em_fail_hw':
 #        if outcome == 'pass_em_fail_hw':
 #        if len(list_mu6_pairs):
-        if True:
+        if False:
 #            mu1 = list_mu6_pairs[0].muon1.p4
 #            mu2 = list_mu6_pairs[0].muon2.p4
 #            print ("runNumber = {0:d}  eventNumber = {1:d}".format(event.runNumber, event.eventNumber))
@@ -232,7 +232,7 @@ def main():
     print 'valid counters:'
     pprint(dict(valid_counters))
 
-    if False:
+    if True:
         #print errors
         p_p=valid_counters['pass_em_pass_hw']
         p_f=valid_counters['pass_em_fail_hw']
