@@ -134,15 +134,15 @@ def main():
                                             lvl1item_name.replace('-','_')+'_iBits'))
         increment_counters(item_counters, item_bits)
         # # These are not filled, so don't bother for now # DG-2016-06-23
-        # algo_bits = algo_tbits2bits(getattr(event, algorithm_name+'_0_aBits'))
-        # increment_counters(algo_counters, algo_bits)
+        #algo_bits = algo_tbits2bits(getattr(event, algorithm_name+'_0_aBits'))
+        #increment_counters(algo_counters, algo_bits)
         pass_hw = item_bits['TDT_TBP']
         pass_sim = item_bits['L1SIMULATED']
-        
-        # overflown = algo_bits['OVERFLOWN']
-        # if overflown:
-        #     valid_counters['overflow'] += 1
-        #     continue
+
+        #overflown = algo_bits['OVERFLOWN']
+        #if overflown:
+        #    valid_counters['overflow'] += 1
+        #    continue
         # emTobs = [EmTob(w) for w in event.emTobs]
         # jetTobs = [JetTob(w) for w in event.jetTobs]
         # tauTobs = [TauTob(w) for w in event.tauTobs]
@@ -160,7 +160,7 @@ def main():
         # these are EnhancedMuonTOB objects
 #        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
 #                 if tob.bcn==0] # only pick the ones from bunch crossing number 0
-        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
+        muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.hdwMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
 #        muons = remove_equal_muons(muons)
 
@@ -194,7 +194,7 @@ def main():
 #        if outcome == 'pass_em_fail_hw':
 #        if outcome == 'pass_em_fail_hw':
 #        if len(list_mu6_pairs):
-        if False:
+        if True:
 #            mu1 = list_mu6_pairs[0].muon1.p4
 #            mu2 = list_mu6_pairs[0].muon2.p4
 #            print ("runNumber = {0:d}  eventNumber = {1:d}".format(event.runNumber, event.eventNumber))
@@ -202,22 +202,25 @@ def main():
 #            print("muon2:  Pt = {0:.2f}\t\tPhi = {1:.0f} \tEta = {2:.0f}\n".format(mu2.Pt()/1000, mu2.Phi()*10, mu2.Eta()*10))
             for  muon in muons:
                 mu = muon.p4
-                print("Pt = {0:.0f}\t\tPhi = {1:.0f} \tEta = {2:.0f}".format(mu.Pt()/1000, mu.Phi()*10, mu.Eta()*10))
-            print("")
+                print("Pt = {0:.0f}\t\tPhi = {1:.2f}  \tEta = {2:.2f}".format(mu.Pt()/1000., mu.Phi()*10, mu.Eta()*10))
+            print("-------------")
         
 
 #        if outcome == 'fail_em_pass_hw':
 #        if True:
         if False:
-            print ("runNumber = {0:d}  eventNumber = {1:d}".format(event.runNumber, event.eventNumber))
+#            print ("runNumber = {0:d}  eventNumber = {1:d}".format(event.runNumber, event.eventNumber))
 #            print("emuMuonTOB")
 #            for i, mu in enumerate(list(set(event.emuMuonTOB))):
 #                print("<{:d}>: Pt = {:.2f} Phi = {:.2f} Eta = {:.2f}".format(i, mu.pt, mu.phi, mu.eta))
 
+            for i, mu in enumerate(event.l1muon):
+                print("Pt = {:.0f}\t\tPhi = {:.2f}  \tEta = {:.2f}  \tisVetoed = {:}".format(mu.p4.Pt()/1000., mu.p4.Phi()*10, mu.p4.Eta()*10, mu.isVetoed))
+
 #            print("hdwMuonTOB")
-            for i, mu in enumerate(list(set(event.hdwMuonTOB))):
-                print("<{:d}>: Pt = {:.2f} Phi = {:.2f} Eta = {:.2f}".format(i, mu.pt, mu.phi, mu.eta))
-            print("")
+#            for i, mu in enumerate(list(set(event.hdwMuonTOB))):
+#                print("<{:d}>: Pt = {:.2f} Phi = {:.2f} Eta = {:.2f}".format(i, mu.pt, mu.phi, mu.eta))
+            print("-------------")
 
         if debug and pass_hw:
             print "passed, %d muons" % len(muons)

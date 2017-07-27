@@ -161,8 +161,7 @@ def main():
         # these are EnhancedMuonTOB objects
         muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.hdwMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
-#        muons = remove_repeated(muons)
-        muons = remove_equal_muons(muons)
+#        muons = remove_equal_muons(muons)
 
         list_mu4 = sorted(muons, key = lambda muon: muon.p4.Pt()) #all muons satisfy mu4
         list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_2m9_pairs, list_mu6mu4_0dr15_pairs, list_mu6mu4_pairs = algo_2M9_0DR15(list_mu4, pass_hw = pass_hw) #2im9_0dr15 couplelist
@@ -268,7 +267,8 @@ def algo_2M9_0DR15(list_mu4, pass_hw): #retuns ordered list with couples of mu6m
 #    couples_2m9_0dr15 = [couple for couple in couples_2m9 if couple.dr<=1.5] #take only 2mu9_0dr15
     couples_2m9_0dr15 = [couple for couple in couples_0dr15 if couple.m>=2000 and couple.m<=9000] #take only 2mu9_0dr15
 #    couples_2m9_0dr15 = couples_2m9
-    if pass_hw and not len(couples_2m9_0dr15):
+#    if pass_hw and not len(couples_2m9_0dr15):
+    if False:
         for couple in couples_any:
            #print some data to check
             mu1 = couple.muon1.p4
