@@ -91,7 +91,8 @@ def main():
     histos = {}
     histos2= {}
     lvl1item_name  = 'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4'
-    algorithm_name = '0DR15-MU4MU6'
+    algorithm1_name = '2INVM9-MU6ab-MU4ab'
+    algorithm2_name = '0DR15-MU6ab-MU4ab'
 
     l = lvl1item_name
     num_binning   = (9 , -0.5, 8.5)
@@ -135,15 +136,18 @@ def main():
                                             lvl1item_name.replace('-','_')+'_iBits'))
         increment_counters(item_counters, item_bits)
         # # These are not filled, so don't bother for now # DG-2016-06-23
-        # algo_bits = algo_tbits2bits(getattr(event, algorithm_name+'_0_aBits'))
-        # increment_counters(algo_counters, algo_bits)
+        algo1_bits = algo_tbits2bits(getattr(event, algorithm1_name.replace('-','_')+'_0_aBits'))
+        increment_counters(algo_counters, algo1_bits)
+        algo2_bits = algo_tbits2bits(getattr(event, algorithm2_name.replace('-','_')+'_0_aBits'))
+        increment_counters(algo_counters, algo2_bits)
         pass_hw = item_bits['TDT_TBP']
         pass_sim = item_bits['L1SIMULATED']
         
-        # overflown = algo_bits['OVERFLOWN']
-        # if overflown:
-        #     valid_counters['overflow'] += 1
-        #     continue
+        overflown1 = algo1_bits['OVERFLOWN']
+        overflown2 = algo2_bits['OVERFLOWN']
+        if overflown1 or overflown2:
+            valid_counters['overflow'] += 1
+            continue
         # emTobs = [EmTob(w) for w in event.emTobs]
         # jetTobs = [JetTob(w) for w in event.jetTobs]
         # tauTobs = [TauTob(w) for w in event.tauTobs]
