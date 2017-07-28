@@ -192,9 +192,9 @@ def main():
                     list_0dr15_pairs, list_pairs, list_mu6_0dr15_pairs, list_mu6_pairs) #fill histograms
 
 #        if outcome == 'pass_em_fail_hw':
-        if outcome == 'fail_em_pass_hw':
+#        if outcome == 'fail_em_pass_hw':
 #        if len(list_mu6_pairs):
-#        if False:
+        if False:
 #            mu1 = list_mu6_pairs[0].muon1.p4
 #            mu2 = list_mu6_pairs[0].muon2.p4
 #            print ("runNumber = {0:d}  eventNumber = {1:d}".format(event.runNumber, event.eventNumber))
