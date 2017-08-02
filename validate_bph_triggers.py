@@ -109,12 +109,15 @@ def main():
             'n_pairs_mu6mu4_0dr15'     : R.TH1F('n_pairs_mu6mu4_0dr15'+'_'+k     , l+'; N mu6mu4_0dr15 pairs'         , *num_binning),
             'n_pairs_mu6mu4'           : R.TH1F('n_pairs_mu6mu4'+'_'+k           , l+'; N mu6mu4 pairs'               , *num_binning),
             'n_pairs_any'              : R.TH1F('n_pairs_any'+'_'+k              , l+'; N any pair'                   , *num_binning),
-            'dr_min_mu6mu4'            : R.TH1F('dr_min_mu6mu4'+'_'+k            , l+'; min #DeltaR best mu6mu4 pair' , *dr_binning),
             'dr_any'                   : R.TH1F('dr_any'+'_'+k                   , l+'; #DeltaR any pair'             , *dr_binning),
             'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'         , *dr_binning),
+            'dr_min_mu6mu4'            : R.TH1F('dr_min_mu6mu4'+'_'+k            , l+'; min #DeltaR mu6mu4 pairs'     , *dr_binning),
             'dr_mu6mu4_0dr15'          : R.TH1F('dr_mu6mu4_0dr15'+'_'+k          , l+'; #DeltaR mu6mu4_0dr15'         , *dr_binning),
+            'dr_min_mu6mu4_0dr15'      : R.TH1F('dr_min_mu6mu4_0dr15'+'_'+k      , l+'; min #DeltaR mu6mu4_0dr15'     , *dr_binning),
             'dr_mu6mu4_2m9'            : R.TH1F('dr_mu6mu4_2m9'+'_'+k            , l+'; #DeltaR mu6mu4_2m9'           , *dr_binning),
+            'dr_min_mu6mu4_2m9'        : R.TH1F('dr_min_mu6mu4_2m9'+'_'+k        , l+'; min #DeltaR mu6mu4_2m9'       , *dr_binning),
             'dr_mu6mu4_2m9_0dr15'      : R.TH1F('dr_mu6mu4_2m9_0dr15'+'_'+k      , l+'; #DeltaR mu6mu4_2m9_0dr15'     , *dr_binning),            'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'         , *dr_binning),
+            'dr_min_mu6mu4_2m9_0dr15'  : R.TH1F('dr_min_mu6mu4_2m9_0dr15'+'_'+k  , l+'; min #DeltaR mu6mu4_2m9_0dr15' , *dr_binning),            'dr_mu6mu4'                : R.TH1F('dr_mu6mu4'+'_'+k                , l+'; #DeltaR mu6mu4 pairs'         , *dr_binning),
             'm_any'                    : R.TH1F('m_any'+'_'+k                    , l+'; #InvMass any pair'            , *m_binning),
             'm_mu6mu4'                 : R.TH1F('m_mu6mu4'+'_'+k                 , l+'; #InvMass mu6mu4 pairs'        , *m_binning),
             'm_mu6mu4_0dr15'           : R.TH1F('m_mu6mu4_0dr15'+'_'+k           , l+'; #InvMass mu6mu4_0dr15'        , *m_binning),
@@ -142,10 +145,11 @@ def main():
         increment_counters(algo_counters, algo2_bits)
         pass_hw = item_bits['TDT_TBP']
         pass_sim = item_bits['L1SIMULATED']
+        pass_hw = item_bits['TDT_TBP']
         
         overflown1 = algo1_bits['OVERFLOWN']
         overflown2 = algo2_bits['OVERFLOWN']
-        if overflown1 or overflown2:
+        if overflown1 and overflown2:
             valid_counters['overflow'] += 1
             continue
         # emTobs = [EmTob(w) for w in event.emTobs]
@@ -166,18 +170,78 @@ def main():
         muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.hdwMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
 #        muons = remove_equal_muons(muons)
+#        muons_emu = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
+#                 if tob.bcn==0] # only pick the ones from bunch crossing number 0
+
+#        muons = muons_emu
 
         list_mu4 = sorted(muons, key = lambda muon: muon.p4.Pt()) #all muons satisfy mu4
         list_mu6mu4_2m9_0dr15_pairs, list_mu6mu4_2m9_pairs, list_mu6mu4_0dr15_pairs, list_mu6mu4_pairs = algo_2M9_0DR15(list_mu4, pass_hw = pass_hw) #2im9_0dr15 couplelist
         list_pairs = make_all_pairs(muons)
 
         pass_emul = len(list_mu6mu4_2m9_0dr15_pairs)  #returns true if mu6mu4, 2m9 or 0dr15
-#        pass_emul = len(list_mu6mu4_2m9_pairs) or len(list_mu6mu4_0dr15_pairs)  #returns true if mu6mu4, 2m9 or 0dr15
+#        pass_emul = len(list_mu6mu4_2m9_pairs) and len(list_mu6mu4_0dr15_pairs)  #returns true if mu6mu4, 2m9 or 0dr15
 
         outcome = ('pass_em_pass_hw' if pass_hw and pass_emul else
                    'pass_em_fail_hw' if pass_emul else
                    'fail_em_pass_hw' if pass_hw else
                    'fail_em_fail_hw')
+
+#        if pass_hw and not len(list_mu6mu4_2m9_pairs):
+#        if outcome == 'fail_em_pass_hw':
+#        if not pass_hw:
+        if False:
+#            for muon in muons:
+#                mu = muon.p4
+#                print("Pt = {0:.0f}  \tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10., mu.Eta()*10.))
+
+#            print("")
+#            for pair in list_mu6mu4_pairs:
+#                mu1 = pair.muon1.p4
+#                mu2 = pair.muon2.p4
+#                print("muon1:  Pt = {:.0f}  \tPhi = {:.0f}  \tEta = {:.0f}".format(mu1.Pt()/1000., mu1.Phi()*10., mu1.Eta()*10.))
+#                print("muon2:  Pt = {:.0f}  \tPhi = {:.0f}  \tEta = {:.0f}".format(mu2.Pt()/1000., mu2.Phi()*10., mu2.Eta()*10.))
+#                print('invm2 = {:.0f}'.format(pair.invm2/1000000.))
+            print('runNumber = {}  eventNumber = {}  lumiBlock = {}'.format(event.runNumber, event.eventNumber, event.lumiBlock))
+#            print("-------------------------------------------")
+#        else: continue
+
+        if False:
+            for  muon in muons:
+                mu = muon.p4
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10, mu.Eta()*10))
+            print("")
+            for  muon in muons_emu:
+                mu = muon.p4
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10, mu.Eta()*10))
+            print("")
+            print("")
+        
+#        if outcome == 'pass_em_fail_hw':
+#        if outcome == 'fail_em_pass_hw':
+        if False:
+            print("all muons in event")
+            for  muon in muons:
+                mu = muon.p4
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10, mu.Eta()*10))
+#            print("pairs with a pass in emulation")
+            print("pairs with a pass in 0DR15-MU6ab-MU4ab emulation")
+            for pair in list_mu6mu4_0dr15_pairs:
+                mu1 = pair.muon1.p4
+                mu2 = pair.muon2.p4
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu1.Pt()/1000., mu1.Phi()*10, mu1.Eta()*10))
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu2.Pt()/1000., mu2.Phi()*10, mu2.Eta()*10))
+                print("dr = {0:.2f}  \t\tinvm = {1:.2f}".format(pair.dr*10, pair.invm/1000.))
+            print("pairs with a pass in 2INVM9-MU6ab-MU4ab emulation")
+            for pair in list_mu6mu4_2m9_pairs:
+                mu1 = pair.muon1.p4
+                mu2 = pair.muon2.p4
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu1.Pt()/1000., mu1.Phi()*10, mu1.Eta()*10))
+                print("Pt = {0:.0f}\t\tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu2.Pt()/1000., mu2.Phi()*10, mu2.Eta()*10))
+                print("dr = {0:.2f}  \t\tinvm = {1:.2f}".format(pair.dr*10, pair.invm/1000.))
+            print("-----------")
+
+
         valid_counters[outcome] += 1
         fill_histos(histos[outcome], histos2[outcome], muons, list_mu4, list_mu6mu4_2m9_pairs,
                      list_mu6mu4_0dr15_pairs, list_mu6mu4_2m9_0dr15_pairs,
@@ -195,23 +259,28 @@ def main():
     print 'valid counters:'
     pprint(dict(valid_counters))
 
-    #print errors
-    p_p=valid_counters['pass_em_pass_hw']
-    p_f=valid_counters['pass_em_fail_hw']
-    f_p=valid_counters['fail_em_pass_hw']
-    f_f=valid_counters['fail_em_fail_hw']
-
-    total_imputs = p_p+p_f+f_p+f_f
-    total_pass_em = p_p+p_f
-    total_pass_hw = f_p+p_p
-    total_discordance = 100.*(f_p+p_f)/total_imputs
-    pass_em_discordance = 100.*p_f/total_pass_em
-    fail_em_discordance = 100.*f_p/(f_p+f_f)
-    pass_hw_discordance = 100.*f_p/total_pass_hw
-    print('  total   error {:.2f}%'.format(total_discordance))
-    print('  em pass error {:.2f}%'.format(pass_em_discordance))
-    print('  em fail error {:.2f}%'.format(fail_em_discordance))
-    print('  hw pass error {:.2f}%'.format(pass_hw_discordance))
+    if True:
+        #print errors
+        p_p=valid_counters['pass_em_pass_hw']
+        p_f=valid_counters['pass_em_fail_hw']
+        f_p=valid_counters['fail_em_pass_hw']
+        f_f=valid_counters['fail_em_fail_hw']
+    
+        total_imputs = p_p+p_f+f_p+f_f
+        total_pass_em = p_p+p_f
+        total_pass_hw = f_p+p_p
+        total_fail_em = f_p+f_f
+        total_fail_hw = p_f+f_f
+        total_discordance = 100.*(f_p+p_f)/total_imputs
+        pass_em_discordance = 100.*p_f/total_pass_em
+        fail_em_discordance = 100.*f_p/total_fail_em
+        pass_hw_discordance = 100.*f_p/total_pass_hw
+        fail_hw_discordance = 100.*p_f/total_fail_hw
+        print('  total   error {:.2f}%'.format(total_discordance))
+        print('  em pass error {:.2f}%'.format(pass_em_discordance))
+        print('  em fail error {:.2f}%'.format(fail_em_discordance))
+        print('  hw pass error {:.2f}%'.format(pass_hw_discordance))
+        print('  hw fail error {:.2f}%'.format(fail_hw_discordance))
 
     c = R.TCanvas('c')
     order = [2,4,3,1]
@@ -226,6 +295,9 @@ def main():
             h.Draw('h text')
             c.Update()
             i+=1
+#        h = histos['fail_em_pass_hw'][name]
+#        h.Draw('h text')
+#        c.Update()
         
         c.SaveAs(name+'.png')
         c.SaveAs(name+'.root')
@@ -238,10 +310,14 @@ def main():
         h.Draw('Colz')
         c.Update()
         i+=1
-        if verbose:
-            h.Print("all")
-    if verbose:
-        print('\n')
+#    h = histos2['fail_em_pass_hw']
+#    h.Draw('Colz')
+#    c.Update()
+
+#        if verbose:
+#            h.Print("all")
+#    if verbose:
+#        print('\n')
 
     c.SaveAs('PhiEta_mu6mu4.png')
     c.SaveAs('PhiEta_mu6mu4.root')
@@ -267,9 +343,11 @@ def algo_2M9_0DR15(list_mu4, pass_hw): #retuns ordered list with couples of mu6m
     couples_any.sort(key = lambda couple: couple.dr) #sort list
     couples_0dr15 = [couple for couple in couples_any if couple.dr<=1.5] #take only 0dr15
 #    couples_0dr15 = [couple for couple in couples_any if (not couple.isPhi3 and couple.dr<1.505) or (couple.isPhi3 and (couple.dr<1.505 or (couple.dr>2.75 and couple.dr<3.2)))] #take only 0dr15, different algorithm for Phi>3
-    couples_2m9   = [couple for couple in couples_any if couple.m>=1999.67 and couple.m<=9000] #take only 2m9
+    couples_2m9   = [couple for couple in couples_any if couple.invm2>=4000000 and couple.invm<=81000000] #take only 2m9
+#    couples_2m9   = [couple for couple in couples_any if couple.invm>=2000 and couple.invm<=9000] #take only 2m9
 #    couples_2m9_0dr15 = [couple for couple in couples_2m9 if couple.dr<=1.5] #take only 2mu9_0dr15
-    couples_2m9_0dr15 = [couple for couple in couples_0dr15 if couple.m>=2000 and couple.m<=9000] #take only 2mu9_0dr15
+    couples_2m9_0dr15 = [couple for couple in couples_0dr15 if couple.invm2>=4000000 and couple.invm2<=81000000] #take only 2mu9_0dr15
+#    couples_2m9_0dr15 = [couple for couple in couples_0dr15 if couple.invm>=2000 and couple.invm<=9000] #take only 2mu9_0dr15
 #    couples_2m9_0dr15 = couples_2m9
 #    if pass_hw and not len(couples_2m9_0dr15):
     if False:
@@ -278,7 +356,7 @@ def algo_2M9_0DR15(list_mu4, pass_hw): #retuns ordered list with couples of mu6m
             mu1 = couple.muon1.p4
             mu2 = couple.muon2.p4
             dr = couple.dr
-            m = couple.m
+            m = couple.invm
             DPhi = mu1.DeltaPhi(mu2)
             print("muon1: Pt = {0:.2f} Phi = {1:.2f} Eta = {2:.2f}".format(mu1.Pt(), mu1.Phi(), mu1.Eta()))
             print("muon2: Pt = {0:.2f} Phi = {1:.2f} Eta = {2:.2f}".format(mu2.Pt(), mu2.Phi(), mu2.Eta()))
@@ -325,30 +403,33 @@ def fill_histos(histos, histos2, muons, list_mu4, list_mu6mu4_2m9_pairs,
     
     
     if n_mu6mu4_2m9_0dr15_pairs:
+        histos['dr_min_mu6mu4_2m9_0dr15'].Fill(list_mu6mu4_2m9_0dr15_pairs[0].dr)
         for pair in list_mu6mu4_2m9_0dr15_pairs:
             histos['dr_mu6mu4_2m9_0dr15'].Fill(pair.dr)
-            histos['m_mu6mu4_2m9_0dr15'].Fill(pair.m)
+            histos['m_mu6mu4_2m9_0dr15'].Fill(pair.invm)
     
     if n_mu6mu4_2m9_pairs:
+        histos['dr_min_mu6mu4_2m9'].Fill(list_mu6mu4_2m9_pairs[0].dr)
         for pair in list_mu6mu4_2m9_pairs:
             histos['dr_mu6mu4_2m9'].Fill(pair.dr)
-            histos['m_mu6mu4_2m9'].Fill(pair.m)
+            histos['m_mu6mu4_2m9'].Fill(pair.invm)
     
     if n_mu6mu4_0dr15_pairs:
+        histos['dr_min_mu6mu4_0dr15'].Fill(list_mu6mu4_0dr15_pairs[0].dr)
         for pair in list_mu6mu4_0dr15_pairs:
             histos['dr_mu6mu4_0dr15'].Fill(pair.dr)
-            histos['m_mu6mu4_0dr15'].Fill(pair.m)
+            histos['m_mu6mu4_0dr15'].Fill(pair.invm)
 
     if n_mu6mu4_pairs: 
         histos['dr_min_mu6mu4'].Fill(list_mu6mu4_pairs[0].dr) #lowest dr
         for pair in list_mu6mu4_pairs:
             histos['dr_mu6mu4'].Fill(pair.dr)
-            histos['m_mu6mu4'].Fill(pair.m)
+            histos['m_mu6mu4'].Fill(pair.invm)
 
     if n_pairs: 
         for pair in list_pairs:
             histos['dr_any'].Fill(pair.dr)
-            histos['m_any'].Fill(pair.m)
+            histos['m_any'].Fill(pair.invm)
    
     for muon in muons: #fill histogram of momentums
         histos['pt_any'].Fill(muon.p4.Pt())
@@ -377,8 +458,12 @@ class MuonPair(object):
         self.muon2  = muon2
         self.dr     = muon1.p4.DeltaR(muon2.p4)
 #        DPhi = muon1.p4.DeltaPhi(muon2.p4)
-        Phi1 = muon1.p4.Phi()
-        Phi2 = muon2.p4.Phi()
+#        Phi1 = muon1.p4.Phi()
+#        if Phi1 < 0:
+#            Phi1 -=.1
+#        Phi2 = muon2.p4.Phi()
+#        if Phi2 < 0:
+#            Phi2 -=.1
 
 #        if Phi1>=3.09:
 #            Phi1=0
@@ -390,28 +475,45 @@ class MuonPair(object):
 #            Phi1+=0.1
 #        if Phi2>3:
 #            Phi2+=0.1
-        DPhi = (Phi1-Phi2)%tau 
+#        DPhi = abs(Phi1-Phi2)
 #        DPhi = min((Phi1-Phi2)%tau, (Phi1-Phi2+tau/2)%tau) 
 #        if DPhi>pi:
 #            DPhi=2*pi-DPhi
-        Dphi = muon1.p4.DeltaPhi(muon2.p4)
+        DEta = abs(muon1.p4.Eta()-muon2.p4.Eta())
+        DPhi = abs(muon1.p4.Phi()-muon2.p4.Phi())
+        if DPhi > pi:
+            DPhi = tau - DPhi
+#        self.invm2 = round(2*round(muon1.p4.Pt()/1000.)*round(muon2.p4.Pt()/1000.)*(cosh(DEta)-cos(DPhi)))*1000000
+        DPhi = muon1.p4.DeltaPhi(muon2.p4)
         Eta1 = muon1.p4.Eta()
         Eta2 = muon2.p4.Eta()
         DEta = Eta1-Eta2
-        self.m = sqrt(2*muon1.p4.Pt()*muon2.p4.Pt()*(cosh(DEta)-cos(DPhi)))
-#        self.m      = (muon1.p4+muon2.p4).M()
+        self.invm2 = round(2*muon1.p4.Pt()*muon2.p4.Pt()*(cosh(DEta)-cos(DPhi)))
+        self.invm = sqrt(2*muon1.p4.Pt()*muon2.p4.Pt()*(cosh(DEta)-cos(DPhi)))
+#        if muon1.p4.Pt()>=9999:
+#            self.invm = sqrt(2*(muon1.p4.Pt()+1000)*muon2.p4.Pt()*(cosh(DEta)-cos(DPhi)))
+#        elif muon2.p4.Pt()>=9999:
+#            self.invm = sqrt(2*muon1.p4.Pt()*(muon2.p4.Pt()+1000)*(cosh(DEta)-cos(DPhi)))
+#        if muon1.p4.Pt()>=9999 and muon2.p4.Pt()>=9999:
+#            self.invm = sqrt(2*(muon1.p4.Pt()+1000)*(muon2.p4.Pt()+1000)*(cosh(DEta)-cos(DPhi)))
+
+#        self.invm      = (muon1.p4+muon2.p4).M()
         self.isPhi3 = muon1.p4.Phi()>3 or muon2.p4.Phi()>3 #true if the Phi value of any of the muons is greater than 3.
 
 def remove_equal_muons(muons): #remove repeated muons of a list
     ZERO = 1.e-2
     i = 0
     while i<(len(muons)-1):
+        replaced = 0
         j = i+1
         while j<len(muons):
             if (abs(muons[i].p4.Pt()-muons[j].p4.Pt())+abs(muons[i].p4.Eta()-muons[j].p4.Eta())+abs(muons[i].p4.Phi()-muons[j].p4.Phi()))<ZERO:
                 muons.pop(j)
+                replaced+=1
                 j-=1
             j+=1
+        if replaced and abs(muons[i].p4.Pt()/1000.-10)<ZERO:
+            muons[i] = Muon(2*muons[i].p4.Pt(), muons[i].p4.Eta(), muons[i].p4.Phi())
         i +=1
 
     return muons
