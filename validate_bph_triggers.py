@@ -131,6 +131,9 @@ def main():
 
     histo_names = [name for name, histo in histos[possible_outcomes[0]].items()]
 
+    n_fail_hdw = 0
+    n_pass_hdw = 0
+
     for iEvent, event in enumerate(chain):
         if num_skip and iEvent<num_skip: continue
         if iEntry > num_toprocess: break
@@ -146,6 +149,12 @@ def main():
         pass_hw = item_bits['TDT_TBP']
         pass_sim = item_bits['L1SIMULATED']
         pass_hw = item_bits['TDT_TBP']
+        if pass_hw:
+            n_pass_hdw+=1
+        else:
+            n_fail_hdw+=1
+        if n_pass_hdw>500 and pass_hw: continue
+        if n_fail_hdw>501 and not pass_hw: continue
         
         overflown1 = algo1_bits['OVERFLOWN']
         overflown2 = algo2_bits['OVERFLOWN']
