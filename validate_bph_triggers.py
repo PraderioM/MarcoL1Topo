@@ -198,11 +198,12 @@ def main():
 
 #        if pass_hw and not len(list_mu6mu4_2m9_pairs):
 #        if outcome == 'fail_em_pass_hw':
-#        if not pass_hw:
+#        if pass_hw:
         if False:
-#            for muon in muons:
-#                mu = muon.p4
-#                print("Pt = {0:.0f}  \tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10., mu.Eta()*10.))
+            n_muons = len(muons)
+            for i in range(n_muons):
+                mu = muons[n_muons-i-1].p4
+                print("Pt = {0:.0f}  \tPhi = {1:.0f}  \tEta = {2:.0f}".format(mu.Pt()/1000., mu.Phi()*10., mu.Eta()*10.))
 
 #            print("")
 #            for pair in list_mu6mu4_pairs:
@@ -211,8 +212,9 @@ def main():
 #                print("muon1:  Pt = {:.0f}  \tPhi = {:.0f}  \tEta = {:.0f}".format(mu1.Pt()/1000., mu1.Phi()*10., mu1.Eta()*10.))
 #                print("muon2:  Pt = {:.0f}  \tPhi = {:.0f}  \tEta = {:.0f}".format(mu2.Pt()/1000., mu2.Phi()*10., mu2.Eta()*10.))
 #                print('invm2 = {:.0f}'.format(pair.invm2/1000000.))
-            print('runNumber = {}  eventNumber = {}  lumiBlock = {}'.format(event.runNumber, event.eventNumber, event.lumiBlock))
-#            print("-------------------------------------------")
+#            print('runNumber = {}  eventNumber = {}  lumiBlock = {}'.format(event.runNumber, event.eventNumber, event.lumiBlock))
+            print('event_number = {}'.format(event.eventNumber))
+            print("--------------------------------------")
 #        else: continue
 
         if False:

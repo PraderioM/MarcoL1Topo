@@ -96,7 +96,7 @@ def main():
     algorithm_name = '0DR15-2MU6ab'
 
     l = lvl1item_name
-    dr_binning    = (31 , -0.05 , 3.05)
+    dr_binning    = (31, -0.05, 3.05)
     histos = {
             'dr_min_all'      : R.TH1F('dr_min_all'      , l+'; min #DeltaR 2mu6 pair'              , *dr_binning),
             'dr_min_hdw_pass' : R.TH1F('dr_min_hdw_pass' , l+'; min #DeltaR 2mu6 pair and hdw pass' , *dr_binning),
@@ -127,7 +127,6 @@ def main():
         muons = [Muon(tob.pt, tob.eta, tob.phi) for tob in event.emuMuonTOB
                  if tob.bcn==0] # only pick the ones from bunch crossing number 0
 #        muons = [Muon(tob.Pt(), tob.Eta(), tob.Phi()) for tob in event.recomuon]
-#                 if tob.Bcn()==0] # only pick the ones from bunch crossing number 0
 
         list_mu6ab = algo_MU6ab(muons) #mu6 list
         if len(list_mu6ab)<2: continue

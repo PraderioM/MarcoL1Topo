@@ -183,6 +183,19 @@ def remove_equal_muons(muons): #remove repeated muons of a list
 
     return muons
 
+def remove_repeated_events(event_list): #remove repeated events of a list
+    i = 0
+    while i<len(event_list)-1:
+        j = i+1
+        while j<len(event_list):
+            if event_list[i].event_number == event_list[j].event_number:
+                event_list.pop(j)
+                j-=1
+            j+=1
+        i+=1
+
+    return event_list
+
 def get_events_hdw_emu_offline_ef(filenames, options, hdw_emu_of_ef):
     verbose = options.verbose
     debug = options.debug
@@ -217,7 +230,7 @@ def get_events_hdw_emu_offline_ef(filenames, options, hdw_emu_of_ef):
         else:
             muons = [Muon(tob.Pt()/1000., tob.Eta(), tob.Phi()) for tob in event.efmuon]
 
-        muons = remove_equal_muons(muons)
+#        muons = remove_equal_muons(muons)
         muons.sort(key = lambda x: x.p4.Eta())
 
         entry = Event(event.runNumber, event.eventNumber, muons)
@@ -243,7 +256,9 @@ def get_events_sim(file_name):
 
         if read_muons:
             line = line.split('  ')
-            muon  = Muon(int(line[0]), int(line[1])/10., int(line[2])/10.)
+            Pt = int(line[0])
+            if Pt>10: Pt=10
+            muon  = Muon(Pt, int(line[1])/10., int(line[2])/10.)
             Muons.append(muon)
             continue
 
@@ -254,7 +269,6 @@ def get_events_sim(file_name):
         
         if line == '</info>\n':
             read_event = 0
-            Muons = remove_equal_muons(Muons)
             Muons.sort(key = lambda x: x.p4.Eta())
             entry = Event(run_number, event_number, Muons)
             Events_sim.append(entry)
@@ -269,6 +283,8 @@ def get_events_sim(file_name):
         if line == '<info>\n':
             read_event = 1
             continue
+
+    Events_sim = remove_repeated_events(Events_sim)
     return Events_sim
 
 def generate_pt_eta_phi(Events1, Events2, min_dPhi = 0): #this function takes 2 events lists and returns values of the found matches of 
@@ -289,22 +305,24 @@ def generate_pt_eta_phi(Events1, Events2, min_dPhi = 0): #this function takes 2 
                         candidates = []
                         for imuon, muon2 in enumerate(event2.muons):
                             #dPt = (abs(muon1.p4.Pt()-muon2.p4.Pt()) if muon1.p4.Pt()<10 and muon2.p4.Pt()<10 else
-                            #        min(abs(muon1.p4.Pt()-muon2.p4.Pt()), 1))
                             dPt = abs(muon1.p4.Pt()-muon2.p4.Pt())
                             dPt /=10. #make the value be of the same order as the others.
                             dEta = abs(muon1.p4.Eta()-muon2.p4.Eta())
-                            #dPhi = (abs(muon1.p4.Phi()-muon2.p4.Phi()) if abs(muon1.p4.Phi()-3.1)<1.e-2 and abs(muon2.p4.Phi()-3.1)<1.e-2
-                            #        else min(abs(muon1.p4.Phi()-muon2.p4.Phi()), abs(muon1.p4.Phi()), abs(muon2.p4.Phi())))
-                            dPhi = abs(muon1.p4.Phi()-muon2.p4.Phi())
+                            dPhi = (abs(muon1.p4.Phi()-muon2.p4.Phi()) if (abs(muon1.p4.Phi()-3.1)>1.e-2 and abs(muon2.p4.Phi()-3.1)>1.e-2) or (abs(muon1.p4.Phi()-3.1)<=1.e-2 and abs(muon2.p4.Phi()-3.1)<=1.e-2)
+                                    else min(abs(muon1.p4.Phi()), abs(muon2.p4.Phi())))
+                            #dPhi = abs(muon1.p4.Phi()-muon2.p4.Phi())
 
-                            #candidate = Candidate(muon1, imuon, dPt+dEta+dPhi)
-                            if max(dPt, dEta)<=0.1:
-                                candidate = Candidate(muon1, imuon, dPhi)
-                                candidates.append(candidate)
+                            candidate = Candidate(muon1, imuon, dPt+dEta+dPhi)
+#                            if max(dPt, dEta,)<=0.1:
+#                                candidate = Candidate(muon1, imuon, dPhi)
+#                                candidates.append(candidate)
+#                            candidate = Candidate(muon1, imuon, dPhi+dEta+dPt)
+                            candidates.append(candidate)
                         
                         if len(candidates):
                             candidates.sort(key = lambda candidate: candidate.difference)
-                            if candidates[0].difference>=min_dPhi:
+#                            if candidates[0].difference>=min_dPhi:
+                            if True:
                                 muon2 = candidates[0].muon
 
                                 Pt1.append(muon1.p4.Pt())
@@ -329,18 +347,21 @@ def generate_pt_eta_phi(Events1, Events2, min_dPhi = 0): #this function takes 2 
                             dPt = abs(muon1.p4.Pt()-muon2.p4.Pt())
                             dPt /=10. #make the value be of the same order as the others.
                             dEta = abs(muon1.p4.Eta()-muon2.p4.Eta())
-                            #dPhi = (abs(muon1.p4.Phi()-muon2.p4.Phi()) if abs(muon1.p4.Phi()-3.1)<1.e-2 and abs(muon2.p4.Phi()-3.1)<1.e-2
-                            #        else min(abs(muon1.p4.Phi()-muon2.p4.Phi()), abs(muon1.p4.Phi()), abs(muon2.p4.Phi())))
-                            dPhi = abs(muon1.p4.Phi()-muon2.p4.Phi())
+                            dPhi = (abs(muon1.p4.Phi()-muon2.p4.Phi()) if (abs(muon1.p4.Phi()-3.1)>1.e-2 and abs(muon2.p4.Phi()-3.1)>1.e-2) or (abs(muon1.p4.Phi()-3.1)<=1.e-2 and abs(muon2.p4.Phi()-3.1)<=1.e-2)
+                                    else min(abs(muon1.p4.Phi()), abs(muon2.p4.Phi())))
+#                            dPhi = abs(muon1.p4.Phi()-muon2.p4.Phi())
 
-                            #candidate = Candidate(muon1, imuon, dPt+dEta+dPhi)
-                            if max(dPt, dEta)<=0.1:
-                                candidate = Candidate(muon1, imuon, dPhi)
-                                candidates.append(candidate)
+                            candidate = Candidate(muon1, imuon, dPt+dEta+dPhi)
+#                            if max(dPt, dEta)<=0.2:
+#                                candidate = Candidate(muon1, imuon, dPhi)
+#                                candidates.append(candidate)
+#                            candidate = Candidate(muon1, imuon, dPhi+dEta+dPt)
+                            candidates.append(candidate)
 
                         if len(candidates):
                             candidates.sort(key = lambda candidate: candidate.difference)
-                            if candidates[0].difference>=min_dPhi:
+#                            if candidates[0].difference>=min_dPhi:
+                            if True:
                                 muon1 = candidates[0].muon
 
                                 Pt1.append(muon1.p4.Pt())
